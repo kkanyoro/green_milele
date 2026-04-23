@@ -18,9 +18,8 @@ export default function Navbar() {
 
     return (
         <>
-            {/* Floating sticky container utilizing our custom glass-panel utility */}
-            <nav className="fixed w-full h-20 z-50 bg-white/30 backdrop-blur-md border-b border-white/20 shadow-sm transition-all duration-300">
-                <div className="flex items-center justify-between pt-4 px-6 md:px-12">
+            <nav className="fixed w-full min-h-[5rem] z-50 bg-background/80 backdrop-blur-md border-b border-primary/10 shadow-sm transition-all duration-300">
+                <div className="flex items-center justify-between pt-4 pb-4 px-6 md:px-12">
 
                     {/* Logo Section */}
                     <Link href="/" className="flex items-center">
@@ -39,6 +38,7 @@ export default function Navbar() {
                             </Link>
                         ))}
                     </div>
+
                     {/* Right Side Controls */}
                     <div className="flex items-center gap-2 md:gap-4">
 
@@ -74,12 +74,12 @@ export default function Navbar() {
 
                 {/* Mobile Navigation Dropdown */}
                 {isOpen && (
-                    <div className="flex flex-col gap-4 border-t border-primary/10 pb-2 md:hidden z-10 bg-white/90 backdrop-glass-lg shadow-lg rounded-lg">
+                    <div className="absolute left-0 top-full w-full flex flex-col gap-4 p-6 border-b border-primary/10 md:hidden z-40 bg-background/95 backdrop-blur-xl shadow-xl">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className="text-lg font-medium text-primary/90"
+                                className="text-lg font-medium text-primary/90 hover:text-primary"
                                 onClick={() => setIsOpen(false)}
                             >
                                 {link.name}

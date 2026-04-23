@@ -11,26 +11,29 @@
 @layer base {
   :root {
     /* Light Mode - Environmental Theme */
-    --theme-primary: #1A3626;
+    --theme-primary: #0F2417;
     /* Deep Forest Green */
-    --theme-secondary: #A7C4AA;
+    --theme-secondary: #8BA88E;
     /* Soft Sage/Mint */
     --theme-background: #F7F5F0;
     /* Sand/Off-white */
-    --theme-glass-bg: rgba(255, 255, 255, 0.4);
-    --theme-glass-border: rgba(255, 255, 255, 0.2);
+    --theme-glass-bg: rgba(247, 245, 240, 0.85);
+    /* Tinted off-white glass */
+    --theme-glass-border: rgba(15, 36, 23, 0.1);
+    /* Subtle dark border */
   }
 
   .dark {
     /* Dark Mode - Deep Night Theme */
-    --theme-primary: #E8F0E9;
+    --theme-primary: #F4F9F5;
     /* Off-white with a hint of mint */
-    --theme-secondary: #4A6B52;
+    --theme-secondary: #5C8065;
     /* Darker Sage */
-    --theme-background: #0B140E;
+    --theme-background: #070D09;
     /* Very Dark Green/Almost Black */
-    --theme-glass-bg: rgba(0, 0, 0, 0.4);
-    --theme-glass-border: rgba(255, 255, 255, 0.05);
+    --theme-glass-bg: rgba(7, 13, 9, 0.85);
+    /* Tinted dark glass */
+    --theme-glass-border: rgba(244, 249, 245, 0.08);
   }
 
   body {

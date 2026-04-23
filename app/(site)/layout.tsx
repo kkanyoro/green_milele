@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Footer from "@/components/Footer";
@@ -11,6 +11,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://greenmilele.vercel.app"),
+
   title: "Green Milele | Youth-Led Environmental Initiative",
   description: "Join Green Milele in protecting our environment for future generations through action, community, and education.",
   keywords: ["environment", "conservation", "youth-led", "climate action", "tree planting", "Green Milele"],

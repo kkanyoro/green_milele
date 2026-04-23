@@ -88,13 +88,17 @@ export default async function EventsPage() {
                                         </div>
                                     </div>
 
-                                    {event.rsvpLink && (
-                                        <div className="mt-auto flex">
+                                    <div className="mt-auto flex flex-wrap gap-4">
+                                        {event.rsvpLink && (
                                             <Link href={event.rsvpLink} target="_blank" rel="noopener noreferrer">
                                                 <Button>RSVP to Event</Button>
                                             </Link>
-                                        </div>
-                                    )}
+                                        )}
+
+                                        <Link href={`/events/${event._id}`}>
+                                            <Button variant="outline">View Details & Photos</Button>
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         ))}
