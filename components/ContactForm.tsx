@@ -13,7 +13,9 @@ export default function ContactForm() {
         setIsSubmitting(true);
         setErrorMessage("");
 
-        const formData = new FormData(event.currentTarget);
+        // Capture the form element synchronously before the await
+        const formElement = event.currentTarget;
+        const formData = new FormData(formElement);
         formData.append("access_key", process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "b2c91d38-b930-4330-bba2-51b2af224821");
 
         try {
@@ -26,8 +28,8 @@ export default function ContactForm() {
 
             if (data.success) {
                 setIsSuccess(true);
-                // Reset form after success
-                event.currentTarget.reset();
+                // Use the captured variable to reset the form safely
+                formElement.reset();
             } else {
                 setErrorMessage("Something went wrong. Please try again later.");
             }
@@ -47,7 +49,10 @@ export default function ContactForm() {
                 <h3 className="mb-2 text-2xl font-bold">Message Sent!</h3>
                 <p className="text-primary/80">Thank you for reaching out. Our team will get back to you shortly.</p>
                 <button
-                    onClick={() => setIsSuccess(false)}
+                    onClick={() => {
+                        setIsSuccess(false);
+                        setErrorMessage(""); // Wipe any residual errors
+                    }}
                     className="mt-6 text-sm font-medium underline transition-colors hover:text-primary/70"
                 >
                     Send another message
