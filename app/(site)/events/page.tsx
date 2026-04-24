@@ -21,6 +21,8 @@ const GALLERY_QUERY = `*[_type == "galleryImage"] | order(_createdAt desc) {
   alt
 }`;
 
+export const revalidate = 60; // Revalidate every 60 seconds to keep data fresh
+
 export default async function EventsPage() {
     // Fetch both datasets concurrently
     const [events, galleryImages] = await Promise.all([
