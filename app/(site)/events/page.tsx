@@ -4,8 +4,8 @@ import { client, urlFor } from "@/lib/sanity.client";
 import Button from "@/components/ui/Button";
 import { FiCalendar, FiMapPin } from "react-icons/fi";
 
-// GROQ Queries to fetch data from Sanity
-const EVENTS_QUERY = `*[_type == "event"] | order(date asc) {
+// Fetch upcoming events (ordered by soonest first)
+const UPCOMING_EVENTS_QUERY = `*[_type == "event" && date >= now()] | order(date asc) {
   _id,
   title,
   date,
@@ -15,6 +15,17 @@ const EVENTS_QUERY = `*[_type == "event"] | order(date asc) {
   coverImage
 }`;
 
+// Fetch past events (ordered by most recent first)
+const PAST_EVENTS_QUERY = `*[_type == "event" && date < now()] | order(date desc) {
+  _id,
+  title,
+  date,
+  location,
+  description,
+  coverImage
+}`;
+
+// Fetch gallery images
 const GALLERY_QUERY = `*[_type == "galleryImage"] | order(_createdAt desc) {
   _id,
   image,
@@ -24,9 +35,10 @@ const GALLERY_QUERY = `*[_type == "galleryImage"] | order(_createdAt desc) {
 export const revalidate = 60; // Revalidate every 60 seconds to keep data fresh
 
 export default async function EventsPage() {
-    // Fetch both datasets concurrently
-    const [events, galleryImages] = await Promise.all([
-        client.fetch(EVENTS_QUERY),
+    // Fetch all three datasets concurrently
+    const [upcomingEvents, pastEvents, galleryImages] = await Promise.all([
+        client.fetch(UPCOMING_EVENTS_QUERY),
+        client.fetch(PAST_EVENTS_QUERY),
         client.fetch(GALLERY_QUERY)
     ]);
 
@@ -46,17 +58,17 @@ export default async function EventsPage() {
                 </p>
             </section>
 
-            {/* Upcoming Events */}
+            {/* Upcoming Events Section */}
             <section className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 mb-24">
                 <h2 className="text-3xl font-bold tracking-tight text-primary border-b border-primary/10 pb-4">
                     Upcoming Events
                 </h2>
 
-                {events.length === 0 ? (
-                    <p className="text-primary/70 italic">No upcoming events scheduled at the moment. Check back soon!</p>
+                {upcomingEvents.length === 0 ? (
+                    <p className="text-primary/70 italic glass-panel p-6 text-center">No upcoming events scheduled at the moment. Check back soon!</p>
                 ) : (
                     <div className="flex flex-col gap-8">
-                        {events.map((event: any) => (
+                        {upcomingEvents.map((event: any) => (
                             <div key={event._id} className="flex flex-col gap-6 p-6 glass-panel md:flex-row md:p-8 transition-transform hover:-translate-y-1">
 
                                 {/* Event Image */}
@@ -91,12 +103,66 @@ export default async function EventsPage() {
                                     </div>
 
                                     <div className="mt-auto flex flex-wrap gap-4">
+                                        <Link href={`/events/${event._id}`}>
+                                            <Button variant="outline">View Details</Button>
+                                        </Link>
+
                                         {event.rsvpLink && (
                                             <Link href={event.rsvpLink} target="_blank" rel="noopener noreferrer">
                                                 <Button>RSVP to Event</Button>
                                             </Link>
                                         )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
 
+            {/* Past Events Section */}
+            {pastEvents.length > 0 && (
+                <section className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 mb-24">
+                    <h2 className="text-3xl font-bold tracking-tight text-primary border-b border-primary/10 pb-4">
+                        Past Events
+                    </h2>
+
+                    <div className="flex flex-col gap-8">
+                        {pastEvents.map((event: any) => (
+                            <div key={event._id} className="flex flex-col gap-6 p-6 glass-panel md:flex-row md:p-8 transition-transform hover:-translate-y-1">
+
+                                {/* Event Image */}
+                                {event.coverImage && (
+                                    <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-primary/5 md:w-1/3 md:min-h-[200px]">
+                                        <Image
+                                            src={urlFor(event.coverImage).url()}
+                                            alt={event.title}
+                                            fill
+                                            sizes="(max-width: 768px) 100vw, 33vw"
+                                            className="object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Event Details */}
+                                <div className="flex w-full flex-col md:w-2/3">
+                                    <h3 className="mb-3 text-2xl font-bold text-primary">{event.title}</h3>
+                                    <p className="mb-6 text-sm leading-relaxed text-primary/80 line-clamp-3">
+                                        {event.description}
+                                    </p>
+
+                                    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:gap-6">
+                                        <div className="flex items-center gap-2 text-sm font-medium text-primary/80">
+                                            <FiCalendar className="text-lg text-primary" />
+                                            <span>{new Date(event.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm font-medium text-primary/80">
+                                            <FiMapPin className="text-lg text-primary" />
+                                            <span>{event.location}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-auto flex flex-wrap gap-4">
                                         <Link href={`/events/${event._id}`}>
                                             <Button variant="outline">View Details & Photos</Button>
                                         </Link>
@@ -105,8 +171,8 @@ export default async function EventsPage() {
                             </div>
                         ))}
                     </div>
-                )}
-            </section>
+                </section>
+            )}
 
             {/* Photo Gallery (Masonry Grid) */}
             <section className="mx-auto flex w-full max-w-7xl flex-col px-6">
@@ -122,10 +188,10 @@ export default async function EventsPage() {
                         {galleryImages.map((photo: any) => (
                             <div key={photo._id} className="break-inside-avoid relative overflow-hidden rounded-xl glass-panel group">
                                 <Image
-                                    src={urlFor(photo.image).width(800).url()} // Optimize width for grid
+                                    src={urlFor(photo.image).width(800).url()}
                                     alt={photo.alt || "Green Milele Gallery Image"}
                                     width={800}
-                                    height={800} // This is just a placeholder ratio, the CSS layout auto-adjusts height
+                                    height={800}
                                     className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                                     sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                 />

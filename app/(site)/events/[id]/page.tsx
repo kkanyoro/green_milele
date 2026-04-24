@@ -4,6 +4,8 @@ import { client, urlFor } from "@/lib/sanity.client";
 import Button from "@/components/ui/Button";
 import { FiCalendar, FiMapPin, FiArrowLeft } from "react-icons/fi";
 
+export const revalidate = 60;
+
 // params automatically grabs the [id] from URL
 export default async function SingleEventPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -33,6 +35,9 @@ export default async function SingleEventPage({ params }: { params: Promise<{ id
         );
     }
 
+    // Determine if the event is in the past
+    const isPastEvent = new Date(event.date) < new Date();
+
     return (
         <div className="flex w-full flex-col pb-12 pt-8">
 
@@ -57,6 +62,18 @@ export default async function SingleEventPage({ params }: { params: Promise<{ id
 
                 <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                     <div className="flex w-full flex-col md:w-2/3">
+                        <div className="mb-2 flex flex-wrap gap-2">
+                            {/* Visual indicator for past/upcoming status */}
+                            {isPastEvent ? (
+                                <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary border border-primary/20">
+                                    Past Event
+                                </span>
+                            ) : (
+                                <span className="inline-block rounded-full bg-secondary/30 px-3 py-1 text-xs font-bold text-primary border border-secondary/50">
+                                    Upcoming Event
+                                </span>
+                            )}
+                        </div>
                         <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-primary sm:text-5xl">{event.title}</h1>
                         <div className="flex flex-col gap-3 sm:flex-row sm:gap-6 mb-6">
                             <div className="flex items-center gap-2 text-sm font-medium text-primary/80">
@@ -73,7 +90,8 @@ export default async function SingleEventPage({ params }: { params: Promise<{ id
                         </p>
                     </div>
 
-                    {event.rsvpLink && (
+                    {/* Only show  RSVP button if event is upcoming AND has a link */}
+                    {!isPastEvent && event.rsvpLink && (
                         <div className="md:w-1/3 flex md:justify-end">
                             <Link href={event.rsvpLink} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
                                 <Button size="lg" className="w-full">RSVP to Event</Button>
@@ -91,7 +109,11 @@ export default async function SingleEventPage({ params }: { params: Promise<{ id
 
                 {photos.length === 0 ? (
                     <div className="text-center py-12 glass-panel rounded-2xl">
-                        <p className="text-primary/70 italic">No photos have been uploaded for this event yet.</p>
+                        <p className="text-primary/70 italic">
+                            {isPastEvent
+                                ? "No photos have been uploaded for this event yet."
+                                : "Photos will be uploaded here after the event!"}
+                        </p>
                     </div>
                 ) : (
                     <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
